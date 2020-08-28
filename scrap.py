@@ -28,7 +28,11 @@ def getImg (soup):
 def getPrice (soup):
     priceSoup = soup.find("meta", itemprop="price")
     match = re.search(r'content=\"\d*\.?\d*\"', str(priceSoup))
-    return(str(match.group(0))[9:len(match.group(0)) - 1])
+    try :
+        ret = str(match.group(0))[9:len(match.group(0)) - 1]
+    except :
+        ret = "no price"
+    return(ret)
 
 def getDescription (soup):
     descrSoup = soup.find("p", itemprop="description")
@@ -76,6 +80,15 @@ def getDetails(soup):
     json += "}"
     return (json)
 
+def getGender (url):
+    if url[25:30].find("femme") >-1:
+        return("femme")
+    elif url[25:30].find("homme") >-1:
+        return ("homme")
+    else:
+        return ("kids")
+
+
 def getNewItem (url):
     r = requests.get(url)
     soup = BeautifulSoup(r.text, 'html.parser')
@@ -84,6 +97,7 @@ def getNewItem (url):
     # product_id | url | name | picture_url | alternate | price | price_old | description | sizes | details
     ret = getProductID(soup) + '|' + \
             url + '|' + \
+            getGender(url) + '|' + \
             getName(soup) + '|' + \
             getImg(soup)[0] + '|' + \
             str(listImg) + '|' + \
@@ -104,17 +118,17 @@ def allURL (url):
     return (listUrl)
 
 def getCSV ():
-    urls = ['https://www.fendi.com/fr/femme/sacs-femme', \
-            'https://www.fendi.com/fr/femme/pret-a-porter-femme', \
-            'https://www.fendi.com/fr/femme/chaussures-femme', \
-            'https://www.fendi.com/fr/femme/women-039-s-accessories', \
-            'https://www.fendi.com/fr/homme/sacs-homme', \
-            'https://www.fendi.com/fr/homme/pret-a-porter-homme', \
-            'https://www.fendi.com/fr/homme/chaussures-homme', \
-            'https://www.fendi.com/fr/homme/men-039-s-accessories', \
-            'https://www.fendi.com/fr/vetements-et-accessoires-de-luxe-enfants-fendi<br->/baby/baby-view-all', \
-            'https://www.fendi.com/fr/kids/junior-boys/junior-boys-view-all', \
-            'https://www.fendi.com/fr/kids/junior-girls/junior-girls-view-all']
+    urls = ['https://www.fendi.com/fr/femme/sacs-femme?q=:relevance&page=100&preload=true', \
+            'https://www.fendi.com/fr/femme/pret-a-porter-femme?q=:relevance&page=100&preload=true', \
+            'https://www.fendi.com/fr/femme/chaussures-femme?q=:relevance&page=100&preload=true', \
+            'https://www.fendi.com/fr/femme/women-039-s-accessories?q=:relevance&page=100&preload=true', \
+            'https://www.fendi.com/fr/homme/sacs-homme?q=:relevance&page=100&preload=true', \
+            'https://www.fendi.com/fr/homme/pret-a-porter-homme?q=:relevance&page=100&preload=true', \
+            'https://www.fendi.com/fr/homme/chaussures-homme?q=:relevance&page=100&preload=true', \
+            'https://www.fendi.com/fr/homme/men-039-s-accessories?q=:relevance&page=100&preload=true', \
+            'https://www.fendi.com/fr/vetements-et-accessoires-de-luxe-enfants-fendi<br->/baby/baby-view-all?q=:relevance&page=100&preload=true', \
+            'https://www.fendi.com/fr/kids/junior-boys/junior-boys-view-all?q=:relevance&page=100&preload=true', \
+            'https://www.fendi.com/fr/kids/junior-girls/junior-girls-view-all?q=:relevance&page=100&preload=true']
     txt = ""
     for url in urls:
         listUrl = allURL(url)
